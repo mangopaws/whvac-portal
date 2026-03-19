@@ -95,6 +95,45 @@ export async function updateMemberStatus(
   return res.json();
 }
 
+export interface MemberListResponse {
+  list: MemberRecord[];
+  pageInfo: { totalRows: number; page: number; pageSize: number };
+}
+
+export async function getAllMembers(
+  page = 1,
+  pageSize = 25,
+  search?: string
+): Promise<MemberListResponse> {
+  const params = new URLSearchParams({
+    limit: String(pageSize),
+    offset: String((page - 1) * pageSize),
+    sort: "-createdAt",
+  });
+  if (search) {
+    params.set("where", `(email,like,%${search}%)~or(name,like,%${search}%)`);
+  }
+  const res = await fetch(`${endpoint()}?${params}`, { headers: headers() });
+  if (!res.ok) return { list: [], pageInfo: { totalRows: 0, page, pageSize } };
+  const data = await res.json();
+  return {
+    list: data?.list ?? [],
+    pageInfo: {
+      totalRows: data?.pageInfo?.totalRows ?? 0,
+      page,
+      pageSize,
+    },
+  };
+}
+
+export async function getMemberById(
+  recordId: string
+): Promise<MemberRecord | null> {
+  const res = await fetch(endpoint(`/${recordId}`), { headers: headers() });
+  if (!res.ok) return null;
+  return res.json();
+}
+
 export async function updateMemberPaymentMethod(
   recordId: string,
   paymentMethod: MemberRecord["paymentMethod"]
