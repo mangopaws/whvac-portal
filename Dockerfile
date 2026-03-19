@@ -30,8 +30,9 @@ ENV HOSTNAME=0.0.0.0
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+# Create data directory for SQLite and empty .env for Next.js disk read
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data \
+  && touch /app/.env && chown nextjs:nodejs /app/.env
 
 # Copy standalone output
 COPY --from=builder /app/.next/standalone ./
