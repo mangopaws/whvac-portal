@@ -20,6 +20,7 @@ docker run -d \
   -p 3002:3002 \
   --env-file .env \
   -v /var/www/whvac-portal/.env:/app/.env:ro \
+  -v /var/www/whvac-portal/data:/app/data \
   whvac-portal
 
 echo "Deploy complete ✓"
