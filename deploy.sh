@@ -4,13 +4,23 @@ set -e
 cd /var/www/whvac-portal
 
 echo "Pulling latest code..."
-git pull
+git pull origin main
 
-echo "Stopping containers..."
-docker compose down
+echo "Stopping and removing container..."
+docker stop whvac-portal || true
+docker rm whvac-portal || true
 
-echo "Building and starting containers..."
-docker compose up -d --build
+echo "Building image..."
+docker build -t whvac-portal .
+
+echo "Starting container..."
+docker run -d \
+  --name whvac-portal \
+  --restart unless-stopped \
+  -p 3002:3002 \
+  --env-file .env \
+  -v /var/www/whvac-portal/.env:/app/.env:ro \
+  whvac-portal
 
 echo "Deploy complete ✓"
-docker compose ps
+docker ps | grep whvac-portal
