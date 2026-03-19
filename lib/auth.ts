@@ -96,3 +96,11 @@ export const auth = betterAuth({
 });
 
 export type Auth = typeof auth;
+
+// Run migrations on startup — Better Auth does not auto-migrate.
+// This is safe to call multiple times (idempotent) and resolves well
+// before any real traffic reaches the app.
+auth.$context
+  .then((ctx) => ctx.runMigrations())
+  .then(() => console.log("[auth] DB migrations complete"))
+  .catch((err) => console.error("[auth] DB migration error:", err));
