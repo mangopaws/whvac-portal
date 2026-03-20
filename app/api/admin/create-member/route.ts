@@ -4,6 +4,7 @@ import { createMemberRecord } from "@/lib/nocodb";
 import {
   sendEMTInstructionsEmail,
   sendCashInstructionsEmail,
+  sendWelcomeEmail,
   addToAudience,
 } from "@/lib/resend";
 
@@ -97,6 +98,8 @@ export async function POST(request: NextRequest) {
       await sendEMTInstructionsEmail(email, name, tier, price, magicLink);
     } else if (paymentMethod === "cash") {
       await sendCashInstructionsEmail(email, name, tier, price);
+    } else {
+      await sendWelcomeEmail(email, name, magicLink, tier);
     }
 
     return NextResponse.json({
