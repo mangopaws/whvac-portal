@@ -22,6 +22,28 @@ function getDb(): Database.Database {
   return _db;
 }
 
+/** Update editable fields on a Better Auth user row (batch) */
+export function adminUpdateUser(
+  userId: string,
+  fields: { name?: string; membershipStatus?: string; membershipTier?: string | null }
+) {
+  const db = getDb();
+  if (fields.name !== undefined)
+    db.prepare(`UPDATE "user" SET "name" = ?, "updatedAt" = datetime('now') WHERE id = ?`).run(fields.name, userId);
+  if (fields.membershipStatus !== undefined)
+    db.prepare(`UPDATE "user" SET "membershipStatus" = ?, "updatedAt" = datetime('now') WHERE id = ?`).run(fields.membershipStatus, userId);
+  if (fields.membershipTier !== undefined)
+    db.prepare(`UPDATE "user" SET "membershipTier" = ?, "updatedAt" = datetime('now') WHERE id = ?`).run(fields.membershipTier, userId);
+}
+
+/** Hard-delete a user and all associated auth records */
+export function adminDeleteUser(userId: string) {
+  const db = getDb();
+  db.prepare(`DELETE FROM "session" WHERE "userId" = ?`).run(userId);
+  db.prepare(`DELETE FROM "account" WHERE "userId" = ?`).run(userId);
+  db.prepare(`DELETE FROM "user" WHERE id = ?`).run(userId);
+}
+
 /** Update a single custom field on a Better Auth user row */
 export function adminSetUserField(
   userId: string,

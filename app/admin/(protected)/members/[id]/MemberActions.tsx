@@ -16,6 +16,7 @@ export default function MemberActions({ userId, email, nocoDbId, currentStatus, 
   const [loading, setLoading] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const [magicLink, setMagicLink] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   async function run(action: "activate" | "deactivate" | "resend-magic-link") {
     setLoading(action);
@@ -46,11 +47,40 @@ export default function MemberActions({ userId, email, nocoDbId, currentStatus, 
     setLoading(null);
   }
 
+  async function handleDelete() {
+    setLoading("delete");
+    setFeedback(null);
+
+    const res = await fetch("/api/admin/delete-member", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, email }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      setFeedback({ type: "error", msg: data.error ?? "Delete failed" });
+      setLoading(null);
+      setConfirmDelete(false);
+    } else {
+      router.replace("/admin/members");
+    }
+  }
+
   return (
     <div className="bg-white/[0.04] border border-white/8 rounded-xl p-5 mb-4">
       <h2 className="text-sm font-semibold text-white mb-3">Actions</h2>
 
       <div className="flex flex-wrap gap-2">
+        {/* Edit */}
+        <a
+          href={`/admin/members/${userId}/edit`}
+          className="h-9 px-4 bg-white/8 hover:bg-white/15 border border-white/10 text-white/80 text-sm rounded-lg transition flex items-center gap-2"
+        >
+          ✏️ Edit
+        </a>
+
+        {/* Activate / Deactivate */}
         {currentStatus !== "paid" ? (
           <button
             onClick={() => run("activate")}
@@ -69,6 +99,7 @@ export default function MemberActions({ userId, email, nocoDbId, currentStatus, 
           </button>
         )}
 
+        {/* Send magic link */}
         <button
           onClick={() => run("resend-magic-link")}
           disabled={!!loading}
@@ -76,6 +107,34 @@ export default function MemberActions({ userId, email, nocoDbId, currentStatus, 
         >
           {loading === "resend-magic-link" ? <Spinner /> : "✉ Send Login Link"}
         </button>
+
+        {/* Delete — shows inline confirm on first click */}
+        {!confirmDelete ? (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            disabled={!!loading}
+            className="h-9 px-4 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 text-sm rounded-lg transition disabled:opacity-50 flex items-center gap-2"
+          >
+            🗑 Delete
+          </button>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span className="text-red-400 text-sm">Are you sure?</span>
+            <button
+              onClick={handleDelete}
+              disabled={loading === "delete"}
+              className="h-9 px-4 bg-red-500 hover:bg-red-600 text-white text-sm rounded-lg transition disabled:opacity-50 flex items-center gap-2"
+            >
+              {loading === "delete" ? <Spinner /> : "Yes, delete"}
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="h-9 px-3 text-white/40 hover:text-white/70 text-sm transition"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
 
       {feedback && (

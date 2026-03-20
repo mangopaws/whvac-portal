@@ -163,6 +163,23 @@ export async function getMemberByEmail(
   return list[0] ?? null;
 }
 
+/** Generic update — write any subset of NocoDB columns to an existing record */
+export async function updateMemberRecord(
+  recordId: string,
+  fields: Partial<Omit<MemberRecord, "id">>
+): Promise<MemberRecord> {
+  const res = await fetch(endpoint(`/${recordId}`), {
+    method: "PATCH",
+    headers: headers(),
+    body: JSON.stringify(fields),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`NocoDB updateMemberRecord failed: ${text}`);
+  }
+  return res.json();
+}
+
 export async function updateMemberStatus(
   recordId: string,
   payment_status: MemberRecord["payment_status"],
