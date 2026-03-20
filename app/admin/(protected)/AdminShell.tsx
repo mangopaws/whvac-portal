@@ -4,8 +4,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: "◈", exact: true },
-  { href: "/admin/members", label: "Members", icon: "⊞" },
+  { href: "/admin",          label: "Dashboard", icon: "◈", exact: true },
+  { href: "/admin/members",  label: "Members",   icon: "⊞" },
+  { href: "/admin/settings", label: "Settings",  icon: "⚙" },
 ];
 
 export default function AdminShell({
