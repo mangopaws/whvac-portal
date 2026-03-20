@@ -33,6 +33,13 @@ export const auth = betterAuth({
   database: new Database(dbPath),
   secret: process.env.BETTER_AUTH_SECRET!,
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3002",
+  advanced: {
+    useSecureCookies: true,
+    defaultCookieAttributes: {
+      sameSite: "lax",
+      secure: true,
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false,
