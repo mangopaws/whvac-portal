@@ -23,7 +23,7 @@ const TABLE_ID = process.env.NOCODB_MEMBERS_TABLE_ID!;
 
 function headers() {
   return {
-    "xc-auth": API_TOKEN,
+    "xc-token": API_TOKEN,
     "Content-Type": "application/json",
   };
 }
