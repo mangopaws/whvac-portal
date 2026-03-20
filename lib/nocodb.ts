@@ -18,6 +18,7 @@ export interface MemberRecord {
 
 const BASE_URL = process.env.NOCODB_BASE_URL!;
 const API_TOKEN = process.env.NOCODB_API_TOKEN!;
+const BASE_ID = process.env.NOCODB_BASE_ID!;
 const TABLE_ID = process.env.NOCODB_MEMBERS_TABLE_ID!;
 
 function headers() {
@@ -28,7 +29,7 @@ function headers() {
 }
 
 function endpoint(path = "") {
-  return `${BASE_URL}/api/v1/db/data/noco/${TABLE_ID}${path}`;
+  return `${BASE_URL}/api/v1/db/data/noco/${BASE_ID}/${TABLE_ID}${path}`;
 }
 
 export async function createMemberRecord(
