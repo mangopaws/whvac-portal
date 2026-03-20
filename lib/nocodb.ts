@@ -94,6 +94,12 @@ function endpoint(path = "") {
   return `${BASE_URL}/api/v1/db/data/noco/${BASE_ID}/${TABLE_ID}${path}`;
 }
 
+const TIER_MAP: Record<string, string> = {
+  individual: "Individual",
+  student: "Student",
+  corporate: "Corporate",
+};
+
 /** Map a CreateMemberInput to the snake_case payload NocoDB expects. */
 function toNocoDBPayload(input: CreateMemberInput): Record<string, unknown> {
   return {
@@ -102,7 +108,7 @@ function toNocoDBPayload(input: CreateMemberInput): Record<string, unknown> {
     email: input.email,
     phone: input.phone,
     province: input.province,
-    membership_type: input.tier,
+    membership_type: TIER_MAP[input.tier] ?? input.tier,
     trade_affiliation: input.tradeAffiliation,
     sector: input.sector,
     experience_trades: input.experience_trades,
