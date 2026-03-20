@@ -1,8 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Lightweight session check — cookie presence only.
-// Full session validation + admin role check happen in server components and API routes.
-const SESSION_COOKIE = "better-auth.session_token";
+// Better Auth cookie names.
+//
+// The session cookie name depends on the `useSecureCookies` setting in lib/auth.ts:
+//   useSecureCookies: false  →  "better-auth.session_token"          (our config)
+//   useSecureCookies: true   →  "__Secure-better-auth.session_token"
+//
+// We check BOTH so a config change never causes a silent redirect loop.
+const SESSION_COOKIES = [
+  "better-auth.session_token",         // useSecureCookies: false (our setting)
+  "__Secure-better-auth.session_token", // useSecureCookies: true  (fallback check)
+];
+
+function hasSessionCookie(request: NextRequest): boolean {
+  return SESSION_COOKIES.some((name) => !!request.cookies.get(name)?.value);
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -16,7 +28,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Public pages
+  // Public pages (no session required)
   if (
     pathname === "/admin/login" ||
     pathname.startsWith("/login") ||
@@ -25,12 +37,12 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const hasSession = !!request.cookies.get(SESSION_COOKIE)?.value;
+  const authenticated = hasSessionCookie(request);
 
   // /admin/* — redirect to admin login if no session
-  // (admin email verification happens in app/admin/layout.tsx)
+  // (admin email verification happens in app/admin/layout.tsx server component)
   if (pathname.startsWith("/admin")) {
-    if (!hasSession) {
+    if (!authenticated) {
       return NextResponse.redirect(new URL("/admin/login", request.url));
     }
     return NextResponse.next();
@@ -38,7 +50,7 @@ export function middleware(request: NextRequest) {
 
   // /dashboard/* and /welcome — redirect to member login if no session
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/welcome")) {
-    if (!hasSession) {
+    if (!authenticated) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
