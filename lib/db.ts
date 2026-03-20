@@ -50,7 +50,7 @@ export function adminCountByStatus(): StatusCounts {
   const result: StatusCounts = { active: 0, pending: 0, total: 0 };
   for (const row of rows) {
     result.total += Number(row.count);
-    if (row.membershipStatus === "active") result.active = Number(row.count);
+    if (row.membershipStatus === "paid") result.active = Number(row.count);
     if (row.membershipStatus === "pending") result.pending = Number(row.count);
   }
   return result;

@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       // Update NocoDB record to active
       const member = await getMemberByEmail(email);
       if (member?.id) {
-        await updateMemberStatus(member.id, "active", {
+        await updateMemberStatus(member.id, "paid", {
           stripe_payment_id: stripeCustomerId,
           payment_method: "stripe",
         });

@@ -42,7 +42,7 @@ export default function DashboardShell({
   const firstName = user.name.split(" ")[0];
 
   // Show payment gate if membership is not active
-  if (membershipStatus !== "active") {
+  if (membershipStatus !== "paid") {
     return (
       <div className="min-h-screen bg-[#0F0F1E]">
         <TopBar

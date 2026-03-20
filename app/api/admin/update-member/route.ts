@@ -43,12 +43,12 @@ export async function POST(request: NextRequest) {
   try {
     if (action === "activate") {
       // Update Better Auth user
-      adminSetUserField(userId, "membershipStatus", "active");
+      adminSetUserField(userId, "membershipStatus", "paid");
       if (tier) adminSetUserField(userId, "membershipTier", tier);
 
       // Update NocoDB
       const nocId = nocoDbId ?? (await getMemberByUserId(userId))?.id;
-      if (nocId) await updateMemberStatus(nocId, "active");
+      if (nocId) await updateMemberStatus(nocId, "paid");
 
       return NextResponse.json({ success: true, action: "activated" });
     }
