@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { getMemberByEmail } from "@/lib/nocodb";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 
 export default async function DashboardLayout({
@@ -23,12 +22,14 @@ export default async function DashboardLayout({
     membershipTier?: string;
   };
 
-  // DEBUG: trace membership gate inputs
-  console.log("[Dashboard] session email:", user.email);
-  console.log("[Dashboard] Better Auth membershipStatus:", user.membershipStatus);
-  console.log("[Dashboard] gate fires (membershipStatus !== 'paid'):", user.membershipStatus !== "paid");
-  const _debugMember = await getMemberByEmail(user.email);
-  console.log("[Dashboard] NocoDB payment_status for this email:", _debugMember?.payment_status ?? "(record not found)");
+  // Admins who land on /dashboard get sent to the admin panel instead
+  const adminEmails = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  if (adminEmails.includes(user.email.toLowerCase())) {
+    redirect("/admin");
+  }
 
   return (
     <DashboardShell user={user} membershipStatus={user.membershipStatus ?? "pending"}>
