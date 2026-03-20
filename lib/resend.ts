@@ -15,6 +15,15 @@ function getResend(): Resend {
 const FROM = process.env.RESEND_FROM_EMAIL ?? "noreply@abreeze.studio";
 const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID ?? "";
 
+async function sendEmail(params: Parameters<ReturnType<typeof getResend>['emails']['send']>[0]) {
+  const { data, error } = await getResend().emails.send(params);
+  if (error) {
+    console.error("[resend] send failed:", JSON.stringify(error));
+    throw new Error(`Resend error: ${error.message}`);
+  }
+  return data;
+}
+
 const TIER_LABELS: Record<string, string> = {
   individual: "Individual Member",
   student: "Student Member",
@@ -28,7 +37,7 @@ export async function sendWelcomeEmail(
   tier: string
 ) {
   const tierLabel = TIER_LABELS[tier] ?? tier;
-  return getResend().emails.send({
+  return sendEmail({
     from: FROM,
     to,
     subject: "Welcome to WHVAC — Your membership is active!",
@@ -62,7 +71,7 @@ export async function sendEMTInstructionsEmail(
   magicLink: string
 ) {
   const tierLabel = TIER_LABELS[tier] ?? tier;
-  return getResend().emails.send({
+  return sendEmail({
     from: FROM,
     to,
     subject: "WHVAC Membership — e-Transfer Payment Instructions",
@@ -99,7 +108,7 @@ export async function sendCashInstructionsEmail(
   price: number
 ) {
   const tierLabel = TIER_LABELS[tier] ?? tier;
-  return getResend().emails.send({
+  return sendEmail({
     from: FROM,
     to,
     subject: "WHVAC Membership — Cash Payment Instructions",
@@ -122,7 +131,7 @@ export async function sendCashInstructionsEmail(
 }
 
 export async function sendMagicLinkEmail(to: string, magicLink: string) {
-  return getResend().emails.send({
+  return sendEmail({
     from: FROM,
     to,
     subject: "Your WHVAC login link",
