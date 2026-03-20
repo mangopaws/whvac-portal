@@ -24,10 +24,10 @@ async function sendEmail(params: Parameters<ReturnType<typeof getResend>['emails
   return data;
 }
 
-const TIER_LABELS: Record<string, string> = {
-  individual: "Individual Member",
-  student: "Student Member",
-  corporate: "Corporate Member",
+const TIER_MAP: Record<string, string> = {
+  individual: "Individual",
+  student: "Student",
+  corporate: "Corporate",
 };
 
 export async function sendWelcomeEmail(
@@ -36,7 +36,7 @@ export async function sendWelcomeEmail(
   magicLink: string,
   tier: string
 ) {
-  const tierLabel = TIER_LABELS[tier] ?? tier;
+  const tierLabel = TIER_MAP[tier] ?? tier;
   return sendEmail({
     from: FROM,
     to,
@@ -70,7 +70,7 @@ export async function sendEMTInstructionsEmail(
   price: number,
   magicLink: string
 ) {
-  const tierLabel = TIER_LABELS[tier] ?? tier;
+  const tierLabel = TIER_MAP[tier] ?? tier;
   return sendEmail({
     from: FROM,
     to,
@@ -107,7 +107,7 @@ export async function sendCashInstructionsEmail(
   tier: string,
   price: number
 ) {
-  const tierLabel = TIER_LABELS[tier] ?? tier;
+  const tierLabel = TIER_MAP[tier] ?? tier;
   return sendEmail({
     from: FROM,
     to,
