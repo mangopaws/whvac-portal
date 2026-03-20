@@ -62,7 +62,7 @@ export default async function MemberDetailPage({
           </div>
         </div>
         <span className={`inline-block border rounded-full px-3 py-1 text-xs font-medium capitalize ${
-          member.payment_status === "active"
+          member.payment_status === "paid"
             ? "bg-green-500/10 text-green-400 border-green-500/20"
             : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
         }`}>

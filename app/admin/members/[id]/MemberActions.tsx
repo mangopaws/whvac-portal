@@ -50,7 +50,7 @@ export default function MemberActions({ userId, nocoDbId, currentStatus, tier }:
       <h2 className="text-sm font-semibold text-white mb-3">Actions</h2>
 
       <div className="flex flex-wrap gap-2">
-        {currentStatus !== "active" ? (
+        {currentStatus !== "paid" ? (
           <button
             onClick={() => run("activate")}
             disabled={!!loading}

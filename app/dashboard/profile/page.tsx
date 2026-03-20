@@ -39,11 +39,11 @@ export default async function ProfilePage() {
         </div>
         <div className="text-right flex-shrink-0">
           <span className={`inline-block border rounded-full px-3 py-1 text-xs font-medium ${
-            user.membershipStatus === "active"
+            user.membershipStatus === "paid"
               ? "bg-green-500/10 text-green-400 border-green-500/20"
               : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
           }`}>
-            {user.membershipStatus === "active" ? "Active" : "Pending"}
+            {user.membershipStatus === "paid" ? "Active" : "Pending"}
           </span>
           {user.membershipTier && (
             <p className="text-white/40 text-xs mt-1">
