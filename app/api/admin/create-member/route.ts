@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       jobTitle,
       tradeAffiliation,
       paymentMethod,
-      paymentStatus: isPaid ? "active" : "pending",
+      paymentStatus: isPaid ? "paid" : "pending",
       ...(isPaid && { activatedAt: new Date().toISOString() }),
     });
 
