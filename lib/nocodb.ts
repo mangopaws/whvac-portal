@@ -35,7 +35,7 @@ export interface MemberRecord {
   referral_source?: string;
   anything_else?: string;
   // Payment
-  payment_status: "pending" | "active" | "failed" | "cancelled";
+  payment_status: "pending" | "paid" | "failed";
   payment_method?: "stripe" | "emt" | "cash" | "paid";
   stripe_payment_id?: string;
   join_date?: string;
@@ -54,7 +54,7 @@ export interface CreateMemberInput {
   tier: "individual" | "student" | "corporate"; // → membership_type
   price?: number;             // local only (pricing logic), not stored
   paymentMethod?: "stripe" | "emt" | "cash" | "paid"; // → payment_method
-  paymentStatus: "pending" | "active" | "failed" | "cancelled"; // → payment_status
+  paymentStatus: "pending" | "paid" | "failed"; // → payment_status
   stripeCustomerId?: string;  // → stripe_payment_id
   activatedAt?: string;       // → activated_at
   welcomeSentAt?: string;     // → join_date
