@@ -4,6 +4,7 @@
 // ──────────────────────────────────────────────────────────────
 export interface MemberRecord {
   id?: string;
+  userId?: string;
   // Core identity
   full_name?: string;
   email: string;
