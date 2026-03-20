@@ -12,7 +12,7 @@ function getResend(): Resend {
   return _resend;
 }
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? "noreply@womeninhvac.ca";
+const FROM = process.env.RESEND_FROM_EMAIL ?? "noreply@abreeze.studio";
 const AUDIENCE_ID = process.env.RESEND_AUDIENCE_ID ?? "";
 
 const TIER_LABELS: Record<string, string> = {
