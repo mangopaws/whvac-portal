@@ -157,8 +157,12 @@ export async function getMemberByEmail(
   const res = await fetch(`${endpoint()}?${params}`, {
     headers: headers(),
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    console.log("[NocoDB getMemberByEmail] HTTP error:", res.status, await res.text());
+    return null;
+  }
   const data = await res.json();
+  console.log("[NocoDB getMemberByEmail] raw response:", JSON.stringify(data));
   const list: MemberRecord[] = data?.list ?? [];
   return list[0] ?? null;
 }
