@@ -15,6 +15,12 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# Create the data directory so better-sqlite3 can open the DB file during
+# `next build` (Next.js evaluates every route module at build time to collect
+# page data). The real database volume is mounted at runtime; this just
+# satisfies the directory-existence check in openDatabase().
+RUN mkdir -p /app/data
+
 RUN npm run build
 
 # Stage 3: Production runner
