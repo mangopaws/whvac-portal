@@ -11,6 +11,10 @@ export interface MemberRecord {
   careerRole?: string;
   paymentMethod?: "stripe" | "emt" | "cash";
   paymentStatus: "pending" | "active" | "failed" | "cancelled";
+  phone?: string;
+  company?: string;
+  jobTitle?: string;
+  tradeAffiliation?: string;
   stripeCustomerId?: string;
   activatedAt?: string;
   welcomeSentAt?: string;

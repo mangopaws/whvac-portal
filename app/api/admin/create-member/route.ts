@@ -23,7 +23,11 @@ interface CreateMemberBody {
   tier: "individual" | "student" | "corporate";
   province?: string;
   careerRole?: string;
-  paymentMethod: "stripe" | "emt" | "cash";
+  phone?: string;
+  company?: string;
+  jobTitle?: string;
+  tradeAffiliation?: string;
+  paymentMethod: "stripe" | "emt" | "cash" | "paid";
 }
 
 export async function POST(request: NextRequest) {
@@ -41,7 +45,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { email, firstName, lastName, tier, province, careerRole, paymentMethod } = body;
+  const {
+    email, firstName, lastName, tier, province, careerRole,
+    phone, company, jobTitle, tradeAffiliation, paymentMethod,
+  } = body;
   if (!email || !firstName || !lastName || !tier || !paymentMethod) {
     return NextResponse.json(
       { error: "Missing required fields: email, firstName, lastName, tier, paymentMethod" },
@@ -51,6 +58,9 @@ export async function POST(request: NextRequest) {
 
   const name = `${firstName} ${lastName}`.trim();
   const price = TIER_PRICES[tier] ?? 75;
+
+  // Treat 'paid' and 'stripe' as already-paid — activate immediately
+  const isPaid = paymentMethod === "paid" || paymentMethod === "stripe";
 
   try {
     // Create Better Auth user
@@ -78,8 +88,13 @@ export async function POST(request: NextRequest) {
       price,
       province,
       careerRole,
+      phone,
+      company,
+      jobTitle,
+      tradeAffiliation,
       paymentMethod,
-      paymentStatus: "pending",
+      paymentStatus: isPaid ? "active" : "pending",
+      ...(isPaid && { activatedAt: new Date().toISOString() }),
     });
 
     // Generate magic link — capture URL via sendMagicLink callback
