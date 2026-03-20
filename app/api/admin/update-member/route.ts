@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { adminSetUserField } from "@/lib/db";
+import { adminSetUserField, adminGetUser } from "@/lib/db";
 import { updateMemberStatus, getMemberByEmail } from "@/lib/nocodb";
 import { captureMagicLink } from "@/lib/auth";
 import { sendWelcomeEmail } from "@/lib/resend";
@@ -64,20 +64,20 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "resend-magic-link") {
-      const member = await getMemberByEmail(email);
-      if (!member?.email) {
-        return NextResponse.json({ error: "Member email not found" }, { status: 404 });
-      }
+      // Use the email from the request directly — no NocoDB lookup needed.
+      // Get name + tier from Better Auth (works even if no NocoDB record exists).
+      const authUser = adminGetUser(userId);
+      const displayName = authUser?.name ?? email;
+      const displayTier = authUser?.membershipTier ?? tier ?? "individual";
 
-      const capturePromise = captureMagicLink(member.email);
+      const capturePromise = captureMagicLink(email);
       await auth.api.signInMagicLink({
-        body: { email: member.email, callbackURL: "/dashboard" },
+        body: { email, callbackURL: "/dashboard" },
         headers: new Headers(),
       });
       const magicLink = await capturePromise;
 
-      // Send welcome email with new link
-      await sendWelcomeEmail(member.email, member.full_name ?? member.email, magicLink, member.membership_type);
+      await sendWelcomeEmail(email, displayName, magicLink, displayTier);
 
       return NextResponse.json({ success: true, action: "magic-link-sent", magicLink });
     }
