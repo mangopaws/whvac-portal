@@ -5,12 +5,13 @@ import { useRouter } from "next/navigation";
 
 interface Props {
   userId: string;
+  email: string;
   nocoDbId: string;
   currentStatus: string;
   tier: string;
 }
 
-export default function MemberActions({ userId, nocoDbId, currentStatus, tier }: Props) {
+export default function MemberActions({ userId, email, nocoDbId, currentStatus, tier }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
@@ -24,7 +25,7 @@ export default function MemberActions({ userId, nocoDbId, currentStatus, tier }:
     const res = await fetch("/api/admin/update-member", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, nocoDbId, action, tier }),
+      body: JSON.stringify({ userId, email, nocoDbId, action, tier }),
     });
     const data = await res.json();
 

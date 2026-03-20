@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getMemberByUserId, updateMemberPaymentMethod } from "@/lib/nocodb";
+import { getMemberByEmail, updateMemberPaymentMethod } from "@/lib/nocodb";
 import { createCheckoutSession, getPriceIdForTier } from "@/lib/stripe";
 
 export const runtime = "nodejs";
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Get NocoDB record
-    const member = await getMemberByUserId(userId);
+    const member = await getMemberByEmail(session.user.email);
 
     if (member?.id) {
       await updateMemberPaymentMethod(member.id, method);

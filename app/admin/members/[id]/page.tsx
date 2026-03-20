@@ -73,6 +73,7 @@ export default async function MemberDetailPage({
       {/* Actions */}
       <MemberActions
         userId={member.userId ?? ""}
+        email={member.email}
         nocoDbId={member.id ?? ""}
         currentStatus={member.payment_status}
         tier={member.membership_type}

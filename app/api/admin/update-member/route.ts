@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { adminSetUserField } from "@/lib/db";
-import { updateMemberStatus, getMemberByUserId } from "@/lib/nocodb";
+import { updateMemberStatus, getMemberByEmail } from "@/lib/nocodb";
 import { captureMagicLink } from "@/lib/auth";
 import { sendWelcomeEmail } from "@/lib/resend";
 
@@ -17,6 +17,7 @@ function isAdmin(email: string): boolean {
 
 interface UpdateBody {
   userId: string;
+  email: string;
   nocoDbId?: string;
   action: "activate" | "deactivate" | "resend-magic-link";
   tier?: string;
@@ -35,8 +36,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { userId, nocoDbId, action, tier } = body;
-  if (!userId || !action) {
+  const { userId, email, nocoDbId, action, tier } = body;
+  if (!userId || !email || !action) {
     return NextResponse.json({ error: "Missing userId or action" }, { status: 400 });
   }
 
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       if (tier) adminSetUserField(userId, "membershipTier", tier);
 
       // Update NocoDB
-      const nocId = nocoDbId ?? (await getMemberByUserId(userId))?.id;
+      const nocId = nocoDbId ?? (await getMemberByEmail(email))?.id;
       if (nocId) await updateMemberStatus(nocId, "paid");
 
       return NextResponse.json({ success: true, action: "activated" });
@@ -56,15 +57,14 @@ export async function POST(request: NextRequest) {
     if (action === "deactivate") {
       adminSetUserField(userId, "membershipStatus", "pending");
 
-      const nocId = nocoDbId ?? (await getMemberByUserId(userId))?.id;
+      const nocId = nocoDbId ?? (await getMemberByEmail(email))?.id;
       if (nocId) await updateMemberStatus(nocId, "pending");
 
       return NextResponse.json({ success: true, action: "deactivated" });
     }
 
     if (action === "resend-magic-link") {
-      // Get user email from NocoDB or Better Auth session context
-      const member = await getMemberByUserId(userId);
+      const member = await getMemberByEmail(email);
       if (!member?.email) {
         return NextResponse.json({ error: "Member email not found" }, { status: 404 });
       }

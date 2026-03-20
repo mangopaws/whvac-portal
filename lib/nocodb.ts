@@ -147,22 +147,6 @@ export async function createMemberRecord(
   return res.json();
 }
 
-export async function getMemberByUserId(
-  userId: string
-): Promise<MemberRecord | null> {
-  const params = new URLSearchParams({
-    where: `(userId,eq,${userId})`,
-    limit: "1",
-  });
-  const res = await fetch(`${endpoint()}?${params}`, {
-    headers: headers(),
-  });
-  if (!res.ok) return null;
-  const data = await res.json();
-  const list: MemberRecord[] = data?.list ?? [];
-  return list[0] ?? null;
-}
-
 export async function getMemberByEmail(
   email: string
 ): Promise<MemberRecord | null> {

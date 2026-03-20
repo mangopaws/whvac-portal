@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { getMemberByUserId } from "@/lib/nocodb";
+import { getMemberByEmail } from "@/lib/nocodb";
 import ProfileClient from "./ProfileClient";
 
 export const metadata = { title: "My Profile — WHVAC" };
@@ -19,7 +19,7 @@ export default async function ProfilePage() {
     membershipStatus?: string; membershipTier?: string;
   };
 
-  const member = await getMemberByUserId(user.id).catch(() => null);
+  const member = await getMemberByEmail(user.email).catch(() => null);
 
   return (
     <div className="p-6 lg:p-8 max-w-2xl">
