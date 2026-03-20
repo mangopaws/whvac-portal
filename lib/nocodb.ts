@@ -9,7 +9,7 @@ export interface MemberRecord {
   price: number;
   province?: string;
   careerRole?: string;
-  paymentMethod?: "stripe" | "emt" | "cash";
+  paymentMethod?: "stripe" | "emt" | "cash" | "paid";
   paymentStatus: "pending" | "active" | "failed" | "cancelled";
   phone?: string;
   company?: string;
