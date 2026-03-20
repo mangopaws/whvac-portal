@@ -12,13 +12,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import Database from "better-sqlite3";
 import path from "path";
-
-// Use Better Auth's internal password hasher — exact same scrypt algo used at sign-in
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore — internal dist path, not in public typings
-import { hashPassword } from "better-auth/dist/crypto/password.mjs";
+import { scryptSync, randomBytes } from "crypto";
 
 export const runtime = "nodejs";
+
+/**
+ * Replicates Better Auth's internal hashPassword exactly:
+ *   format:  "<salt_hex>:<key_hex>"
+ *   salt:    16 random bytes, hex-encoded
+ *   key:     scrypt(password.normalize("NFKC"), salt, { N:16384, r:16, p:1, dkLen:64 })
+ */
+function hashPassword(password: string): string {
+  const salt = randomBytes(16).toString("hex");
+  const key = scryptSync(password.normalize("NFKC"), salt, 64, {
+    N: 16384,
+    r: 16,
+    p: 1,
+    maxmem: 128 * 16384 * 16 * 2,
+  });
+  return `${salt}:${key.toString("hex")}`;
+}
 
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
@@ -56,7 +69,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Hash using Better Auth's exact internal scrypt implementation
-  const hashed = await hashPassword(newPassword);
+  const hashed = hashPassword(newPassword);
 
   // Check if a credential account row already exists
   const existing = db
