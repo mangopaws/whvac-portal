@@ -36,6 +36,27 @@ export function adminUpdateUser(
     db.prepare(`UPDATE "user" SET "membershipTier" = ?, "updatedAt" = datetime('now') WHERE id = ?`).run(fields.membershipTier, userId);
 }
 
+/** Set (or create) a credential-based password for a user */
+export function adminSetUserPassword(userId: string, email: string, hashedPassword: string) {
+  const db = getDb();
+  const existing = db
+    .prepare(`SELECT id FROM "account" WHERE "userId" = ? AND "providerId" = 'credential'`)
+    .get(userId) as { id: string } | undefined;
+
+  if (existing) {
+    db.prepare(
+      `UPDATE "account" SET "password" = ?, "updatedAt" = datetime('now') WHERE "userId" = ? AND "providerId" = 'credential'`
+    ).run(hashedPassword, userId);
+  } else {
+    // User has no credential account yet — create one
+    const { randomUUID } = require("crypto") as typeof import("crypto");
+    db.prepare(
+      `INSERT INTO "account" ("id", "userId", "accountId", "providerId", "password", "createdAt", "updatedAt")
+       VALUES (?, ?, ?, 'credential', ?, datetime('now'), datetime('now'))`
+    ).run(randomUUID(), userId, email, hashedPassword);
+  }
+}
+
 /** Hard-delete a user and all associated auth records */
 export function adminDeleteUser(userId: string) {
   const db = getDb();
