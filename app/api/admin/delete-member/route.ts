@@ -31,6 +31,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing userId or email" }, { status: 400 });
   }
 
+  // Refuse to delete admin accounts
+  if (isAdmin(email)) {
+    return NextResponse.json(
+      { error: "Admin accounts cannot be deleted from the portal." },
+      { status: 403 }
+    );
+  }
+
   try {
     // 1. Remove from Better Auth (sessions → accounts → user)
     adminDeleteUser(userId);

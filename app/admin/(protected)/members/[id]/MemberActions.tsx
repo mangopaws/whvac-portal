@@ -9,6 +9,7 @@ interface Props {
   nocoDbId: string;
   currentStatus: string;
   tier: string;
+  isAdmin?: boolean;
 }
 
 // ── SVG Icons ────────────────────────────────────────────────────────────────
@@ -59,9 +60,17 @@ function IconTrash() {
   );
 }
 
+function IconShield() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+  );
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function MemberActions({ userId, email, nocoDbId, currentStatus, tier }: Props) {
+export default function MemberActions({ userId, email, nocoDbId, currentStatus, tier, isAdmin = false }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
@@ -158,8 +167,12 @@ export default function MemberActions({ userId, email, nocoDbId, currentStatus, 
           {loading === "resend-magic-link" ? <Spinner /> : <><IconMail /> Send Login Link</>}
         </button>
 
-        {/* Delete — shows inline confirm on first click */}
-        {!confirmDelete ? (
+        {/* Delete — hidden for admin accounts */}
+        {isAdmin ? (
+          <div className="h-9 px-4 bg-[#E8006A]/5 border border-[#E8006A]/15 text-[#E8006A]/50 text-sm rounded-lg flex items-center gap-2 cursor-not-allowed select-none" title="Admin accounts are protected from deletion">
+            <IconShield /> Admin Account
+          </div>
+        ) : !confirmDelete ? (
           <button
             onClick={() => setConfirmDelete(true)}
             disabled={!!loading}

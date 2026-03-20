@@ -21,6 +21,11 @@ const STATUS_LABELS: Record<string, string> = {
   pending: "Pending",
 };
 
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
 export default async function MembersListPage({
   searchParams,
 }: {
@@ -83,7 +88,14 @@ export default async function MembersListPage({
                 list.map((u) => (
                   <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition">
                     <td className="px-5 py-3">
-                      <p className="text-white font-medium">{u.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-white font-medium">{u.name}</p>
+                        {ADMIN_EMAILS.includes(u.email.toLowerCase()) && (
+                          <span className="text-[10px] bg-[#E8006A]/10 border border-[#E8006A]/25 text-[#E8006A] rounded-full px-2 py-0.5 font-semibold uppercase tracking-wide flex-shrink-0">
+                            Admin
+                          </span>
+                        )}
+                      </div>
                       <p className="text-white/40 text-xs">{u.email}</p>
                     </td>
                     <td className="px-5 py-3">

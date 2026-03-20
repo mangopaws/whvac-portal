@@ -6,6 +6,14 @@ import MemberActions from "./MemberActions";
 
 export const dynamic = "force-dynamic";
 
+function isAdminEmail(email: string): boolean {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(email.toLowerCase());
+}
+
 export default async function MemberDetailPage({
   params,
 }: {
@@ -16,6 +24,8 @@ export default async function MemberDetailPage({
   // Better Auth is the source of truth — page key is the BA user ID
   const authUser = adminGetUser(id);
   if (!authUser) notFound();
+
+  const isAdmin = isAdminEmail(authUser.email);
 
   // Load NocoDB extended profile if it exists (optional — may be null for pre-existing users)
   const nocoMember = await getMemberByEmail(authUser.email).catch(() => null);
@@ -74,7 +84,14 @@ export default async function MemberDetailPage({
             </span>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">{authUser.name}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-white">{authUser.name}</h1>
+              {isAdmin && (
+                <span className="text-[10px] bg-[#E8006A]/10 border border-[#E8006A]/25 text-[#E8006A] rounded-full px-2 py-0.5 font-semibold uppercase tracking-wide">
+                  Admin
+                </span>
+              )}
+            </div>
             <p className="text-white/40 text-sm">{authUser.email}</p>
           </div>
         </div>
@@ -94,6 +111,7 @@ export default async function MemberDetailPage({
         nocoDbId={nocoMember?.id ?? ""}
         currentStatus={authUser.membershipStatus}
         tier={authUser.membershipTier ?? nocoMember?.membership_type ?? "individual"}
+        isAdmin={isAdmin}
       />
 
       {/* Auth Account */}
