@@ -66,14 +66,16 @@ export async function POST(request: NextRequest) {
     });
 
     // 2. Update NocoDB — find record by nocoDbId or fall back to email lookup
-    const nocoBodId = nocoDbId || (await getMemberByEmail(email).catch(() => null))?.id;
-    if (nocoBodId) {
+    const nocoRecordId = nocoDbId || (await getMemberByEmail(email).catch(() => null))?.id;
+    if (nocoRecordId) {
       // Strip undefined values so we only PATCH what was actually sent
-      const patch = Object.fromEntries(
+      const patch: Record<string, unknown> = Object.fromEntries(
         Object.entries(nocoFields).filter(([, v]) => v !== undefined)
       );
+      // Keep NocoDB full_name in sync when the admin changes the name in Better Auth
+      if (name !== undefined) patch.full_name = name;
       if (Object.keys(patch).length > 0) {
-        await updateMemberRecord(nocoBodId, patch);
+        await updateMemberRecord(nocoRecordId, patch);
       }
     }
 

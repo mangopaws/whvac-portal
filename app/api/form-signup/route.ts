@@ -137,10 +137,11 @@ export async function POST(request: NextRequest) {
   const isPaid = paymentMethod === "stripe" || paymentMethod === "paid";
   const price = TIER_PRICES[tier] ?? 79;
 
-  // Split full_name into firstName / lastName for Better Auth display name.
+  // Split full_name into firstName / lastName for NocoDB.
+  // Use "" for lastName if there's only one word — avoids "Amanda Amanda" doubling.
   const nameParts = full_name.trim().split(/\s+/);
   const firstName = nameParts[0];
-  const lastName  = nameParts.length > 1 ? nameParts.slice(1).join(" ") : nameParts[0];
+  const lastName  = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
   try {
     // 1. Create Better Auth user (magic-link auth — random password)
