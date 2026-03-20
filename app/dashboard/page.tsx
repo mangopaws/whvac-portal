@@ -5,25 +5,21 @@ const STATUS_CARDS = [
   {
     title: "Mentorship",
     description: "Get paired with an industry mentor",
-    status: "coming-soon" as const,
     icon: "🤝",
   },
   {
     title: "Scholarships",
     description: "Apply for professional development grants",
-    status: "coming-soon" as const,
     icon: "🎓",
   },
   {
     title: "Resources",
     description: "Guides, templates & industry reports",
-    status: "coming-soon" as const,
     icon: "📚",
   },
   {
     title: "Events",
     description: "Upcoming WHVAC events & workshops",
-    status: "live" as const,
     icon: "📅",
   },
 ];
@@ -52,32 +48,25 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Status cards */}
+      {/* Status cards — all coming soon */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-10">
         {STATUS_CARDS.map((card) => (
           <div
             key={card.title}
-            className="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-white/20 transition"
+            className="bg-white/5 border border-white/10 rounded-xl p-5 opacity-70"
           >
             <div className="text-3xl mb-3">{card.icon}</div>
             <h3 className="font-semibold text-white mb-1">{card.title}</h3>
             <p className="text-white/50 text-sm mb-3">{card.description}</p>
-            {card.status === "live" ? (
-              <span className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/30 rounded-full px-2.5 py-0.5 text-green-400 text-xs font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                Live
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 text-white/40 text-xs">
-                Coming Soon
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-2.5 py-0.5 text-white/40 text-xs">
+              Coming Soon
+            </span>
           </div>
         ))}
       </div>
 
       {/* Onboarding checklist */}
-      <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+      <div className="bg-white/5 border border-white/10 rounded-xl p-6 opacity-70">
         <h2 className="font-semibold text-white mb-4 flex items-center gap-2">
           <span className="text-[#E8006A]">✓</span> Getting Started
         </h2>

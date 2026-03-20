@@ -2,7 +2,6 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import PaymentGate from "./PaymentGate";
 
 interface User {
   id: string;
@@ -19,11 +18,11 @@ interface DashboardShellProps {
 }
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Overview", icon: HomeIcon },
-  { href: "/dashboard/events", label: "Events", icon: CalendarIcon },
-  { href: "/dashboard/directory", label: "Directory", icon: UsersIcon },
-  { href: "/dashboard/resources", label: "Resources", icon: BookIcon },
-  { href: "/dashboard/profile", label: "Profile", icon: UserIcon },
+  { href: "/dashboard",            label: "Overview",   icon: HomeIcon,     comingSoon: false },
+  { href: "/dashboard/events",     label: "Events",     icon: CalendarIcon, comingSoon: true  },
+  { href: "/dashboard/directory",  label: "Directory",  icon: UsersIcon,    comingSoon: true  },
+  { href: "/dashboard/resources",  label: "Resources",  icon: BookIcon,     comingSoon: true  },
+  { href: "/dashboard/profile",    label: "Profile",    icon: UserIcon,     comingSoon: false },
 ];
 
 export default function DashboardShell({
@@ -40,23 +39,6 @@ export default function DashboardShell({
   }
 
   const firstName = user.name.split(" ")[0];
-
-  // Show payment gate if membership is not active
-  if (membershipStatus !== "paid") {
-    return (
-      <div className="min-h-screen bg-[#0F0F1E]">
-        <TopBar
-          firstName={firstName}
-          email={user.email}
-          onSignOut={handleSignOut}
-        />
-        <PaymentGate
-          tier={user.membershipTier ?? "individual"}
-          memberName={user.name}
-        />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#0F0F1E] flex">
@@ -77,6 +59,23 @@ export default function DashboardShell({
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.href;
             const Icon = item.icon;
+
+            if (item.comingSoon) {
+              return (
+                <div
+                  key={item.href}
+                  title="Coming soon"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/25 cursor-not-allowed min-h-[44px] select-none"
+                >
+                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <span>{item.label}</span>
+                  <span className="ml-auto text-[10px] bg-white/5 border border-white/10 rounded-full px-2 py-0.5 text-white/25 leading-none">
+                    Soon
+                  </span>
+                </div>
+              );
+            }
+
             return (
               <a
                 key={item.href}
@@ -94,8 +93,17 @@ export default function DashboardShell({
           })}
         </nav>
 
-        {/* Bottom user strip */}
-        <div className="p-3 border-t border-white/10">
+        {/* Bottom strip */}
+        <div className="p-3 border-t border-white/10 space-y-0.5">
+          <a
+            href="https://womeninhvac.ca"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 text-sm transition min-h-[44px]"
+          >
+            <ArrowLeftIcon className="w-4 h-4" />
+            Back to Website
+          </a>
           <button
             onClick={handleSignOut}
             className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-white/50 hover:text-white hover:bg-white/5 text-sm transition min-h-[44px]"
@@ -113,7 +121,49 @@ export default function DashboardShell({
           email={user.email}
           onSignOut={handleSignOut}
         />
-        <main className="flex-1 pb-20 lg:pb-0">{children}</main>
+
+        <main className="flex-1 pb-20 lg:pb-0">
+          {/* ── Banners ────────────────────────────────────────────── */}
+          <div className="px-6 lg:px-8 pt-6 space-y-3">
+            {/* Coming soon banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#E8006A]/8 border border-[#E8006A]/20 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-2.5">
+                <ConstructionIcon className="w-4 h-4 text-[#E8006A] flex-shrink-0" />
+                <p className="text-sm text-white/70">
+                  <span className="font-semibold text-white">
+                    Member portal features coming soon!
+                  </span>{" "}
+                  We're building the full experience — profile editing is
+                  available now.
+                </p>
+              </div>
+              <a
+                href="https://womeninhvac.ca"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 self-start sm:self-auto h-8 px-3 bg-white/8 hover:bg-white/15 border border-white/10 text-white/60 hover:text-white text-xs rounded-lg transition flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <ArrowLeftIcon className="w-3 h-3" />
+                Back to Website
+              </a>
+            </div>
+
+            {/* Pending membership banner */}
+            {membershipStatus !== "paid" && (
+              <div className="flex items-start gap-2.5 bg-amber-500/8 border border-amber-500/20 rounded-xl px-4 py-3">
+                <ClockIcon className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-amber-200/80">
+                  <span className="font-semibold text-amber-300">
+                    Your membership is pending payment confirmation.
+                  </span>{" "}
+                  You'll receive an email once it's been activated.
+                </p>
+              </div>
+            )}
+          </div>
+          {/* ── Page content ──────────────────────────────────────── */}
+          {children}
+        </main>
       </div>
 
       {/* Bottom tab bar — mobile */}
@@ -121,6 +171,19 @@ export default function DashboardShell({
         {NAV_ITEMS.slice(0, 5).map((item) => {
           const active = pathname === item.href;
           const Icon = item.icon;
+
+          if (item.comingSoon) {
+            return (
+              <div
+                key={item.href}
+                className="flex-1 flex flex-col items-center justify-center py-2 min-h-[56px] text-xs text-white/20 cursor-not-allowed select-none"
+              >
+                <Icon className="w-5 h-5 mb-0.5" />
+                <span className="text-[10px]">{item.label}</span>
+              </div>
+            );
+          }
+
           return (
             <a
               key={item.href}
@@ -138,6 +201,8 @@ export default function DashboardShell({
     </div>
   );
 }
+
+// ── TopBar ────────────────────────────────────────────────────────────────────
 
 function TopBar({
   firstName,
@@ -181,7 +246,8 @@ function TopBar({
   );
 }
 
-// Icon components
+// ── Icon components ───────────────────────────────────────────────────────────
+
 function HomeIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -226,6 +292,30 @@ function SignOutIcon({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+    </svg>
+  );
+}
+
+function ArrowLeftIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+  );
+}
+
+function ConstructionIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+    </svg>
+  );
+}
+
+function ClockIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
 }
