@@ -19,6 +19,7 @@ import { createMemberRecord } from "@/lib/nocodb";
 import { adminSetUserField } from "@/lib/db";
 import {
   sendEMTInstructionsEmail,
+  sendCashInstructionsEmail,
   sendWelcomeEmail,
   addToAudience,
 } from "@/lib/resend";
@@ -38,8 +39,9 @@ const MEMBERSHIP_TYPE_MAP: Record<string, "individual" | "student" | "corporate"
   corporate:           "corporate",
 };
 
-/** Form displays e.g. "Stripe", "e-Transfer" — map to internal payment method */
+/** Form displays e.g. "card", "etransfer", "cash" — map to internal payment method */
 const PAYMENT_METHOD_MAP: Record<string, "stripe" | "emt" | "cash" | "paid"> = {
+  card:         "stripe",
   Stripe:       "stripe",
   stripe:       "stripe",
   "e-Transfer": "emt",
@@ -196,22 +198,29 @@ export async function POST(request: NextRequest) {
       anything_else:     body.anything_else,
     });
 
-    // 4. Generate magic link for this email
-    const capturePromise = captureMagicLink(email);
-    await auth.api.signInMagicLink({
-      body: { email, callbackURL: "/dashboard" },
-      headers: new Headers(),
-    });
-    const magicLink = await capturePromise;
+    // 4. Generate magic link — only needed for paid (welcome email) and emt
+    //    (instructions email includes a preview link). Cash members get no link
+    //    until an admin manually activates them.
+    let magicLink: string | undefined;
+    if (isPaid || paymentMethod === "emt") {
+      const capturePromise = captureMagicLink(email);
+      await auth.api.signInMagicLink({
+        body: { email, callbackURL: "/dashboard" },
+        headers: new Headers(),
+      });
+      magicLink = await capturePromise;
+    }
 
     // 5. Add to Resend audience
     await addToAudience(email, full_name);
 
     // 6. Send appropriate email
     if (isPaid) {
-      await sendWelcomeEmail(email, full_name, magicLink, tier);
+      await sendWelcomeEmail(email, full_name, magicLink!, tier);
     } else if (paymentMethod === "emt") {
-      await sendEMTInstructionsEmail(email, full_name, tier, price, magicLink);
+      await sendEMTInstructionsEmail(email, full_name, tier, price, magicLink!);
+    } else if (paymentMethod === "cash") {
+      await sendCashInstructionsEmail(email, full_name, tier, price);
     }
 
     console.log(`[form-signup] Created member ${email} (${tier}, ${paymentMethod}, paid=${isPaid})`);
@@ -220,7 +229,7 @@ export async function POST(request: NextRequest) {
       success: true,
       userId,
       memberId: member.id,
-      magicLink,
+      ...(magicLink && { magicLink }),
       tier,
       paymentMethod,
       isPaid,

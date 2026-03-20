@@ -77,12 +77,7 @@ export default function LoginClient() {
         <div className="relative z-10 max-w-md">
           {/* Logo / wordmark */}
           <div className="mb-10">
-            <span className="text-[#E8006A] font-bold text-lg tracking-widest uppercase">
-              WHVAC
-            </span>
-            <p className="text-white/40 text-xs mt-1 tracking-wider uppercase">
-              Women in HVAC &amp; Refrigeration
-            </p>
+            <img src="/whvac-logo.svg" alt="WHVAC" className="h-9 w-auto" />
           </div>
 
           <h1 className="text-4xl xl:text-5xl font-serif font-bold text-white leading-tight mb-6">
@@ -109,13 +104,8 @@ export default function LoginClient() {
       {/* RIGHT PANEL */}
       <div className="flex-1 bg-[#1E1E30] flex flex-col items-center justify-center px-6 py-12 lg:px-16">
         {/* Mobile logo */}
-        <div className="lg:hidden mb-8 text-center">
-          <span className="text-[#E8006A] font-bold text-lg tracking-widest uppercase">
-            WHVAC
-          </span>
-          <p className="text-white/40 text-xs mt-1">
-            Women in HVAC &amp; Refrigeration
-          </p>
+        <div className="lg:hidden mb-8 flex justify-center">
+          <img src="/whvac-logo.svg" alt="WHVAC" className="h-8 w-auto" />
         </div>
 
         <div className="w-full max-w-sm">

@@ -51,6 +51,21 @@ export async function POST(request: NextRequest) {
       const nocId = nocoDbId ?? (await getMemberByEmail(email))?.id;
       if (nocId) await updateMemberStatus(nocId, "paid");
 
+      // Send welcome email with a fresh magic link now that the account is active
+      const authUser = adminGetUser(userId);
+      const displayName = authUser?.name ?? email;
+      const displayTier = tier ?? authUser?.membershipTier ?? "individual";
+
+      const capturePromise = captureMagicLink(email);
+      await auth.api.signInMagicLink({
+        body: { email, callbackURL: "/dashboard" },
+        headers: new Headers(),
+      });
+      const magicLink = await capturePromise;
+
+      await sendWelcomeEmail(email, displayName, magicLink, displayTier);
+
+      console.log(`[update-member] Activated ${email} — welcome email sent`);
       return NextResponse.json({ success: true, action: "activated" });
     }
 

@@ -46,10 +46,8 @@ export default function DashboardShell({
       <aside className="hidden lg:flex w-60 flex-col bg-[#1A1A2E] border-r border-white/10 fixed left-0 top-0 bottom-0 z-20">
         {/* Logo */}
         <div className="px-6 py-5 border-b border-white/10">
-          <span className="text-[#E8006A] font-bold tracking-widest text-sm uppercase">
-            WHVAC
-          </span>
-          <p className="text-white/30 text-[10px] mt-0.5 uppercase tracking-wider">
+          <img src="/whvac-logo.svg" alt="WHVAC" className="h-7 w-auto" />
+          <p className="text-white/30 text-[10px] mt-1.5 uppercase tracking-wider">
             Member Portal
           </p>
         </div>
@@ -216,9 +214,7 @@ function TopBar({
   return (
     <header className="h-14 lg:h-16 bg-[#1A1A2E] border-b border-white/10 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-10">
       {/* Mobile logo */}
-      <span className="lg:hidden text-[#E8006A] font-bold tracking-widest text-sm uppercase">
-        WHVAC
-      </span>
+      <img src="/whvac-logo.svg" alt="WHVAC" className="lg:hidden h-6 w-auto" />
       {/* Desktop: breadcrumb placeholder */}
       <div className="hidden lg:block" />
 

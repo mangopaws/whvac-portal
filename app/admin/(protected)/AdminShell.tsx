@@ -32,15 +32,8 @@ export default function AdminShell({
       <aside className="w-56 bg-[#0F0F1E] border-r border-white/8 flex flex-col fixed left-0 top-0 bottom-0 z-20">
         {/* Logo */}
         <div className="px-5 py-4 border-b border-white/8">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-[#E8006A] flex items-center justify-center">
-              <span className="text-white text-xs font-bold">W</span>
-            </div>
-            <div>
-              <p className="text-white text-xs font-bold uppercase tracking-wider">WHVAC</p>
-              <p className="text-white/30 text-[9px] uppercase tracking-widest">Admin</p>
-            </div>
-          </div>
+          <img src="/whvac-logo.svg" alt="WHVAC" className="h-6 w-auto" />
+          <p className="text-white/30 text-[9px] mt-1 uppercase tracking-widest">Admin</p>
         </div>
 
         {/* Nav */}
