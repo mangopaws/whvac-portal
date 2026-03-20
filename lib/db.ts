@@ -41,6 +41,14 @@ export function adminGetUser(userId: string): AdminUser | null {
   return row ?? null;
 }
 
+/** Fetch a single user by email (used by webhooks that only have email, not userId) */
+export function adminGetUserByEmail(email: string): AdminUser | null {
+  const row = getDb()
+    .prepare(`SELECT id, name, email, "membershipStatus", "membershipTier", "createdAt" FROM "user" WHERE email = ?`)
+    .get(email) as AdminUser | undefined;
+  return row ?? null;
+}
+
 /** Count users by membershipStatus */
 export function adminCountByStatus(): StatusCounts {
   const rows = getDb()

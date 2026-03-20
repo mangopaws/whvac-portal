@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { constructWebhookEvent } from "@/lib/stripe";
 import { getMemberByEmail, updateMemberStatus } from "@/lib/nocodb";
+import { adminGetUserByEmail, adminSetUserField } from "@/lib/db";
 import { addToAudience, sendWelcomeEmail } from "@/lib/resend";
 
 export const runtime = "nodejs";
@@ -36,13 +37,20 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      // Update NocoDB record to active
+      // Update NocoDB record to paid
       const member = await getMemberByEmail(email);
       if (member?.id) {
         await updateMemberStatus(member.id, "paid", {
           stripe_payment_id: stripeCustomerId,
           payment_method: "stripe",
         });
+      }
+
+      // Activate Better Auth user so the dashboard gate clears on next login
+      const authUser = adminGetUserByEmail(email);
+      if (authUser) {
+        adminSetUserField(authUser.id, "membershipStatus", "paid");
+        if (tier) adminSetUserField(authUser.id, "membershipTier", tier);
       }
 
       // Add to Resend audience for broadcasts

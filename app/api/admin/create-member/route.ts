@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth, captureMagicLink } from "@/lib/auth";
 import { createMemberRecord } from "@/lib/nocodb";
+import { adminSetUserField } from "@/lib/db";
 import {
   sendEMTInstructionsEmail,
   sendCashInstructionsEmail,
@@ -75,6 +76,12 @@ export async function POST(request: NextRequest) {
     const userId = (userResponse as { user?: { id: string } })?.user?.id;
     if (!userId) {
       throw new Error("Failed to create Better Auth user");
+    }
+
+    // Activate Better Auth user immediately if already paid
+    if (isPaid) {
+      adminSetUserField(userId, "membershipStatus", "paid");
+      adminSetUserField(userId, "membershipTier", tier);
     }
 
     // Create NocoDB member record
