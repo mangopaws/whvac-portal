@@ -1,4 +1,4 @@
-import { getAllMembers } from "@/lib/nocodb";
+import { getAllAdminUsers } from "@/lib/db";
 import Link from "next/link";
 import MembersSearchBar from "./MembersSearchBar";
 
@@ -7,15 +7,18 @@ export const dynamic = "force-dynamic";
 
 const TIER_COLORS: Record<string, string> = {
   individual: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-  student: "bg-purple-500/10 text-purple-400 border-purple-500/20",
-  corporate: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  student:    "bg-purple-500/10 text-purple-400 border-purple-500/20",
+  corporate:  "bg-amber-500/10 text-amber-400 border-amber-500/20",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  active: "bg-green-500/10 text-green-400 border-green-500/20",
+  paid:    "bg-green-500/10 text-green-400 border-green-500/20",
   pending: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  failed: "bg-red-500/10 text-red-400 border-red-500/20",
-  cancelled: "bg-gray-500/10 text-gray-400 border-gray-500/20",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  paid:    "Active",
+  pending: "Pending",
 };
 
 export default async function MembersListPage({
@@ -24,12 +27,12 @@ export default async function MembersListPage({
   searchParams: Promise<{ page?: string; q?: string }>;
 }) {
   const params = await searchParams;
-  const page = Math.max(1, Number(params.page ?? 1));
-  const search = params.q?.trim() || undefined;
+  const page     = Math.max(1, Number(params.page ?? 1));
+  const search   = params.q?.trim() || undefined;
   const pageSize = 20;
 
-  const { list, pageInfo } = await getAllMembers(page, pageSize, search);
-  const totalPages = Math.ceil((pageInfo.totalRows || 0) / pageSize);
+  const { list, total } = getAllAdminUsers(page, pageSize, search);
+  const totalPages = Math.ceil(total / pageSize);
 
   return (
     <div className="p-6 lg:p-8">
@@ -37,9 +40,7 @@ export default async function MembersListPage({
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold text-white">Members</h1>
-          <p className="text-white/40 text-sm mt-0.5">
-            {pageInfo.totalRows} total members
-          </p>
+          <p className="text-white/40 text-sm mt-0.5">{total} total members</p>
         </div>
         <Link
           href="/admin/members/new"
@@ -61,7 +62,7 @@ export default async function MembersListPage({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/8">
-                {["Name / Email", "Tier", "Method", "Status", "Joined", ""].map((h) => (
+                {["Name / Email", "Tier", "Status", "Registered", ""].map((h) => (
                   <th
                     key={h}
                     className="text-left text-white/40 font-medium px-5 py-3 text-xs uppercase tracking-wider whitespace-nowrap"
@@ -74,41 +75,37 @@ export default async function MembersListPage({
             <tbody>
               {list.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center text-white/30 py-12">
+                  <td colSpan={5} className="text-center text-white/30 py-12">
                     {search ? `No results for "${search}"` : "No members yet"}
                   </td>
                 </tr>
               ) : (
-                list.map((m) => (
-                  <tr
-                    key={m.id}
-                    className="border-b border-white/5 hover:bg-white/[0.02] transition"
-                  >
+                list.map((u) => (
+                  <tr key={u.id} className="border-b border-white/5 hover:bg-white/[0.02] transition">
                     <td className="px-5 py-3">
-                      <p className="text-white font-medium">{m.full_name}</p>
-                      <p className="text-white/40 text-xs">{m.email}</p>
+                      <p className="text-white font-medium">{u.name}</p>
+                      <p className="text-white/40 text-xs">{u.email}</p>
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`inline-block border rounded-full px-2 py-0.5 text-xs capitalize ${TIER_COLORS[m.membership_type] ?? "text-white/50"}`}>
-                        {m.membership_type}
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-white/50 text-xs capitalize">
-                      {m.payment_method ?? "—"}
+                      {u.membershipTier ? (
+                        <span className={`inline-block border rounded-full px-2 py-0.5 text-xs capitalize ${TIER_COLORS[u.membershipTier] ?? "text-white/50"}`}>
+                          {u.membershipTier}
+                        </span>
+                      ) : (
+                        <span className="text-white/30 text-xs">—</span>
+                      )}
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`inline-block border rounded-full px-2 py-0.5 text-xs capitalize ${STATUS_COLORS[m.payment_status] ?? "text-white/50"}`}>
-                        {m.payment_status}
+                      <span className={`inline-block border rounded-full px-2 py-0.5 text-xs ${STATUS_COLORS[u.membershipStatus] ?? "bg-white/5 text-white/40 border-white/10"}`}>
+                        {STATUS_LABELS[u.membershipStatus] ?? u.membershipStatus}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-white/40 text-xs whitespace-nowrap">
-                      {m.activated_at
-                        ? new Date(m.activated_at).toLocaleDateString("en-CA")
-                        : "—"}
+                      {new Date(u.createdAt).toLocaleDateString("en-CA")}
                     </td>
                     <td className="px-5 py-3 text-right whitespace-nowrap">
                       <Link
-                        href={`/admin/members/${m.id}`}
+                        href={`/admin/members/${u.id}`}
                         className="text-[#E8006A] text-xs hover:underline"
                       >
                         Manage →
@@ -124,9 +121,7 @@ export default async function MembersListPage({
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-3 border-t border-white/8">
-            <p className="text-white/40 text-xs">
-              Page {page} of {totalPages}
-            </p>
+            <p className="text-white/40 text-xs">Page {page} of {totalPages}</p>
             <div className="flex gap-2">
               {page > 1 && (
                 <Link

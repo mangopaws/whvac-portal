@@ -84,8 +84,65 @@ export interface AdminUser {
   createdAt: string;
 }
 
+export interface AdminUserListResponse {
+  list: AdminUser[];
+  total: number;
+}
+
 export interface StatusCounts {
   active: number;
   pending: number;
   total: number;
+}
+
+/** Paginated list of all users from Better Auth SQLite, with optional search */
+export function getAllAdminUsers(
+  page = 1,
+  pageSize = 20,
+  search?: string
+): AdminUserListResponse {
+  const db = getDb();
+  const offset = (page - 1) * pageSize;
+
+  if (search) {
+    const like = `%${search}%`;
+    const total =
+      (
+        db
+          .prepare(
+            `SELECT COUNT(*) as count FROM "user" WHERE name LIKE ? OR email LIKE ?`
+          )
+          .get(like, like) as { count: number }
+      )?.count ?? 0;
+
+    const list = db
+      .prepare(
+        `SELECT id, name, email, "membershipStatus", "membershipTier", "createdAt"
+         FROM "user"
+         WHERE name LIKE ? OR email LIKE ?
+         ORDER BY "createdAt" DESC
+         LIMIT ? OFFSET ?`
+      )
+      .all(like, like, pageSize, offset) as AdminUser[];
+
+    return { list, total };
+  }
+
+  const total =
+    (
+      db
+        .prepare(`SELECT COUNT(*) as count FROM "user"`)
+        .get() as { count: number }
+    )?.count ?? 0;
+
+  const list = db
+    .prepare(
+      `SELECT id, name, email, "membershipStatus", "membershipTier", "createdAt"
+       FROM "user"
+       ORDER BY "createdAt" DESC
+       LIMIT ? OFFSET ?`
+    )
+    .all(pageSize, offset) as AdminUser[];
+
+  return { list, total };
 }
