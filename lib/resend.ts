@@ -121,6 +121,23 @@ export async function sendCashInstructionsEmail(
   });
 }
 
+export async function sendMagicLinkEmail(to: string, magicLink: string) {
+  return getResend().emails.send({
+    from: FROM,
+    to,
+    subject: "Your WHVAC login link",
+    html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;">
+        <p>Click below to log into your WHVAC member portal:</p>
+        <a href="${magicLink}" style="display:inline-block;background:#E8006A;color:#fff;padding:14px 28px;border-radius:8px;text-decoration:none;font-weight:600;">
+          Log in to WHVAC →
+        </a>
+        <p style="color:#aaa;font-size:14px;">This link expires in 24 hours.</p>
+      </div>
+    `,
+  });
+}
+
 export async function addToAudience(email: string, name: string) {
   if (!AUDIENCE_ID) return;
   const [firstName, ...rest] = name.trim().split(" ");

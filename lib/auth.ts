@@ -53,8 +53,9 @@ export const auth = betterAuth({
           capture.resolve(url);
           pendingCaptures.delete(email);
         } else {
-          // Direct magic link request — log only; Resend handles actual delivery
-          console.log(`Magic link for ${email}: ${url}`);
+          // Direct magic link request — send via Resend
+          const { sendMagicLinkEmail } = await import("./resend");
+          await sendMagicLinkEmail(email, url);
         }
       },
     }),
