@@ -40,13 +40,13 @@ export async function POST(request: NextRequest) {
       const member = await getMemberByEmail(email);
       if (member?.id) {
         await updateMemberStatus(member.id, "active", {
-          stripeCustomerId,
-          paymentMethod: "stripe",
+          stripe_payment_id: stripeCustomerId,
+          payment_method: "stripe",
         });
       }
 
       // Add to Resend audience for broadcasts
-      const name = member?.name ?? email;
+      const name = member?.full_name ?? email;
       await addToAudience(email, name);
 
       // Send welcome email with magic link

@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       const magicLink = await capturePromise;
 
       // Send welcome email with new link
-      await sendWelcomeEmail(member.email, member.name, magicLink, member.tier);
+      await sendWelcomeEmail(member.email, member.full_name ?? member.email, magicLink, member.membership_type);
 
       return NextResponse.json({ success: true, action: "magic-link-sent", magicLink });
     }

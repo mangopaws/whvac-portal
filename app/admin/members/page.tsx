@@ -85,25 +85,25 @@ export default async function MembersListPage({
                     className="border-b border-white/5 hover:bg-white/[0.02] transition"
                   >
                     <td className="px-5 py-3">
-                      <p className="text-white font-medium">{m.name}</p>
+                      <p className="text-white font-medium">{m.full_name}</p>
                       <p className="text-white/40 text-xs">{m.email}</p>
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`inline-block border rounded-full px-2 py-0.5 text-xs capitalize ${TIER_COLORS[m.tier] ?? "text-white/50"}`}>
-                        {m.tier}
+                      <span className={`inline-block border rounded-full px-2 py-0.5 text-xs capitalize ${TIER_COLORS[m.membership_type] ?? "text-white/50"}`}>
+                        {m.membership_type}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-white/50 text-xs capitalize">
-                      {m.paymentMethod ?? "—"}
+                      {m.payment_method ?? "—"}
                     </td>
                     <td className="px-5 py-3">
-                      <span className={`inline-block border rounded-full px-2 py-0.5 text-xs capitalize ${STATUS_COLORS[m.paymentStatus] ?? "text-white/50"}`}>
-                        {m.paymentStatus}
+                      <span className={`inline-block border rounded-full px-2 py-0.5 text-xs capitalize ${STATUS_COLORS[m.payment_status] ?? "text-white/50"}`}>
+                        {m.payment_status}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-white/40 text-xs whitespace-nowrap">
-                      {m.activatedAt
-                        ? new Date(m.activatedAt).toLocaleDateString("en-CA")
+                      {m.activated_at
+                        ? new Date(m.activated_at).toLocaleDateString("en-CA")
                         : "—"}
                     </td>
                     <td className="px-5 py-3 text-right whitespace-nowrap">

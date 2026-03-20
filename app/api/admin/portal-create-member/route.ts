@@ -62,8 +62,8 @@ export async function POST(request: NextRequest) {
     if (!userId) throw new Error("Failed to create user");
 
     const member = await createMemberRecord({
-      userId, email, name, firstName, lastName,
-      tier, price, province, careerRole,
+      userId, email, firstName, lastName,
+      tier, price, province,
       paymentMethod, paymentStatus: "pending",
     });
 

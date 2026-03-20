@@ -18,19 +18,25 @@ export default async function MemberDetailPage({
   const authUser = member.userId ? adminGetUser(member.userId) : null;
 
   const fields = [
-    { label: "Full Name", value: member.name },
+    { label: "Full Name", value: member.full_name },
     { label: "Email", value: member.email },
-    { label: "First Name", value: member.firstName },
-    { label: "Last Name", value: member.lastName },
     { label: "Province", value: member.province ?? "—" },
-    { label: "Career Role", value: member.careerRole ?? "—" },
-    { label: "Membership Tier", value: member.tier },
-    { label: "Price", value: `$${member.price} CAD` },
-    { label: "Payment Method", value: member.paymentMethod ?? "—" },
-    { label: "Payment Status", value: member.paymentStatus },
-    { label: "Stripe Customer ID", value: member.stripeCustomerId ?? "—" },
-    { label: "Activated At", value: member.activatedAt ? new Date(member.activatedAt).toLocaleString("en-CA") : "—" },
-    { label: "Welcome Sent", value: member.welcomeSentAt ? new Date(member.welcomeSentAt).toLocaleString("en-CA") : "—" },
+    { label: "Membership Tier", value: member.membership_type },
+    { label: "Payment Method", value: member.payment_method ?? "—" },
+    { label: "Payment Status", value: member.payment_status },
+    { label: "Stripe Payment ID", value: member.stripe_payment_id ?? "—" },
+    {
+      label: "Activated At",
+      value: member.activated_at
+        ? new Date(member.activated_at).toLocaleString("en-CA")
+        : "—",
+    },
+    {
+      label: "Join Date",
+      value: member.join_date
+        ? new Date(member.join_date).toLocaleString("en-CA")
+        : "—",
+    },
   ];
 
   return (
@@ -39,7 +45,7 @@ export default async function MemberDetailPage({
       <div className="flex items-center gap-2 text-sm text-white/40 mb-6">
         <Link href="/admin/members" className="hover:text-white/70 transition">Members</Link>
         <span>/</span>
-        <span className="text-white/70">{member.name}</span>
+        <span className="text-white/70">{member.full_name}</span>
       </div>
 
       {/* Header */}
@@ -47,29 +53,29 @@ export default async function MemberDetailPage({
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-full bg-[#E8006A]/10 border border-[#E8006A]/20 flex items-center justify-center flex-shrink-0">
             <span className="text-[#E8006A] text-lg font-bold">
-              {member.firstName[0]?.toUpperCase()}
+              {member.full_name?.[0]?.toUpperCase()}
             </span>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">{member.name}</h1>
+            <h1 className="text-xl font-bold text-white">{member.full_name}</h1>
             <p className="text-white/40 text-sm">{member.email}</p>
           </div>
         </div>
         <span className={`inline-block border rounded-full px-3 py-1 text-xs font-medium capitalize ${
-          member.paymentStatus === "active"
+          member.payment_status === "active"
             ? "bg-green-500/10 text-green-400 border-green-500/20"
             : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
         }`}>
-          {member.paymentStatus}
+          {member.payment_status}
         </span>
       </div>
 
       {/* Actions */}
       <MemberActions
-        userId={member.userId}
+        userId={member.userId ?? ""}
         nocoDbId={member.id ?? ""}
-        currentStatus={member.paymentStatus}
-        tier={member.tier}
+        currentStatus={member.payment_status}
+        tier={member.membership_type}
       />
 
       {/* NocoDB fields */}

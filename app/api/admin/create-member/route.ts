@@ -81,13 +81,11 @@ export async function POST(request: NextRequest) {
     const member = await createMemberRecord({
       userId,
       email,
-      name,
       firstName,
       lastName,
       tier,
       price,
       province,
-      careerRole,
       phone,
       company,
       jobTitle,

@@ -65,12 +65,11 @@ export default async function ProfilePage() {
           <dl className="divide-y divide-white/5">
             {[
               { label: "Province", value: member.province ?? "—" },
-              { label: "Career Role", value: member.careerRole ?? "—" },
-              { label: "Payment Method", value: member.paymentMethod ?? "—" },
+              { label: "Payment Method", value: member.payment_method ?? "—" },
               {
                 label: "Member Since",
-                value: member.activatedAt
-                  ? new Date(member.activatedAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
+                value: member.activated_at
+                  ? new Date(member.activated_at).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })
                   : "Pending activation",
               },
             ].map(({ label, value }) => (
