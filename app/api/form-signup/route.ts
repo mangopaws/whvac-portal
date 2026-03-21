@@ -34,6 +34,9 @@ const MEMBERSHIP_TYPE_MAP: Record<string, "individual" | "student" | "corporate"
   "Student Member":    "student",
   "Corporate Member":  "corporate",
   "Ambassador":        "individual", // ambassadors billed as individual
+  Individual:          "individual",
+  Student:             "student",
+  Corporate:           "corporate",
   individual:          "individual",
   student:             "student",
   corporate:           "corporate",
