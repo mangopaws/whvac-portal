@@ -57,9 +57,11 @@ const PAYMENT_METHOD_MAP: Record<string, "stripe" | "emt" | "cash" | "paid"> = {
 };
 
 const TIER_PRICES: Record<string, number> = {
-  individual: 79,
-  student:    55,
-  corporate:  99,
+  individual: 99,
+  student:    25,
+  corporate:  500,
+  ambassador: 75,
+  mentor:     75,
 };
 
 // ── Request body shape (mirrors Lygotype form field names) ───────────────────
@@ -70,6 +72,8 @@ interface FormSignupBody {
   email:            string;
   membership_type:  string;
   payment_method:   string;
+  // Price from the form (overrides hardcoded fallback)
+  price?:           number;
   // Optional — passed through directly to NocoDB
   phone?:               string;
   province?:            string;
@@ -140,7 +144,7 @@ export async function POST(request: NextRequest) {
   // Stripe means payment was collected in the form — activate immediately.
   // e-Transfer is pending until manually confirmed.
   const isPaid = paymentMethod === "stripe" || paymentMethod === "paid";
-  const price = TIER_PRICES[tier] ?? 79;
+  const price = body.price ?? TIER_PRICES[membership_type.toLowerCase()] ?? TIER_PRICES[tier] ?? 99;
 
   // Split full_name into firstName / lastName for NocoDB.
   // Use "" for lastName if there's only one word — avoids "Amanda Amanda" doubling.
